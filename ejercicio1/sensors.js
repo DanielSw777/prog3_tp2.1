@@ -1,4 +1,24 @@
-class Sensor {}
+class Sensor {
+    constructor(id, name, type, value, unit, updated_at) {
+        this.id = id
+        this.name = name;
+        this.type = type;
+        this.value = value;
+        this.unit = unit;
+        this.updated_at = updated_at;
+    }
+
+    set updateValue(newValue) {
+        const values = ["temperature", "humidity", "pressure"];
+
+        if (!values.includes(this.type)) {
+            console.log("Invalid type !!!");
+        }
+
+        this.value = newValue;
+        this.updated_at = new Date().toISOString();
+    }
+}
 
 class SensorManager {
     constructor() {
@@ -33,7 +53,16 @@ class SensorManager {
         }
     }
 
-    async loadSensors(url) {}
+    async loadSensors(url) {
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            data.forEach(sensor => this.addSensor(sensor));
+            this.render()
+        } catch (error) {
+            console.log("Error to load data: ", error.message);
+        }
+    }
 
     render() {
         const container = document.getElementById("sensor-container");
@@ -54,20 +83,19 @@ class SensorManager {
                                 <strong>Tipo:</strong> ${sensor.type}
                             </p>
                             <p>
-                               <strong>Valor:</strong> 
+                               <strong>Valor:</strong>
                                ${sensor.value} ${sensor.unit}
                             </p>
                         </div>
                         <time datetime="${sensor.updated_at}">
                             Última actualización: ${new Date(
-                                sensor.updated_at
-                            ).toLocaleString()}
+                sensor.updated_at
+            ).toLocaleString()}
                         </time>
                     </div>
                     <footer class="card-footer">
-                        <a href="#" class="card-footer-item update-button" data-id="${
-                            sensor.id
-                        }">Actualizar</a>
+                        <a href="#" class="card-footer-item update-button" data-id="${sensor.id
+                }">Actualizar</a>
                     </footer>
                 </div>
             `;
@@ -87,4 +115,4 @@ class SensorManager {
 
 const monitor = new SensorManager();
 
-monitor.loadSensors("sensors.json");
+monitor.loadSensors("./sensors.json");
